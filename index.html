@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>쉼폰 (Rest Phone)</title>
+  <style>
+    :root {
+      --bg-color: #f4f7f6;
+      --card-bg: #ffffff;
+      --primary: #2e7d32;
+      --danger: #d32f2f;
+      --text: #333333;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    header {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      text-align: center;
+      padding: 1.5rem 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    header h1 { margin: 0; font-size: 1.8rem; }
+    header p { margin: 5px 0 0 0; font-size: 0.9rem; opacity: 0.9; }
+
+    main {
+      width: 90%;
+      max-width: 500px;
+      margin: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      border-bottom: 2px solid var(--bg-color);
+      padding-bottom: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    label { font-weight: bold; font-size: 0.9rem; }
+    select, button {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover { opacity: 0.9; }
+
+    /* 위험 알림 스타일 */
+    .danger-alert {
+      background-color: #ffebee;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      display: none;
+    }
+
+    /* 잠금 화면 (블랙아웃 Overlay) */
+    #lock-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #000000;
+      color: #ffffff;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+      text-align: center;
+    }
+
+    #lock-overlay h2 { font-size: 2rem; margin-bottom: 10px; color: #4caf50; }
+    #lock-timer { font-size: 3.5rem; font-weight: bold; font-family: monospace; margin: 20px 0; }
+    #lock-overlay p { color: #888888; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🌿 쉼폰 (Rest Phone)</h1>
+    <p>스마트폰을 내려놓고 주변을 둘러보세요</p>
+  </header>
+
+  <main>
+    <!-- 1. 위치 기반 안전 알림 영역 -->
+    <section class="card">
+      <h2>🚨 주변 안전 알림</h2>
+      <button id="location-btn" onclick="checkLocation()">현재 위치 위험지역 확인</button>
+      <div id="location-status" style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+        위치 확인 버튼을 눌러주세요.
+      </div>
+      <div id="danger-box" class="danger-alert" style="margin-top: 10px;">
+        ⚠️ [위험 경고] 주변에 공사장 또는 위험 지역이 위치해 있습니다. 스마트폰을 넣고 전방을 주시하세요!
+      </div>
+    </section>
+
+    <!-- 2. 사용 및 잠금 시간 설정 영역 -->
+    <section class="card">
+      <h2>⏱️ 쉼 타이머 설정</h2>
+      
+      <div class="form-group">
+        <label for="usage-time">이용할 시간 (이 후 잠금):</label>
+        <select id="usage-time">
+          <option value="1">1분 (테스트용)</option>
+          <option value="15">15분</option>
+          <option value="30">30분</option>
+          <option value="60">1시간</option>
+          <option value="120">2시간</option>
+          <option value="180">3시간</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="lock-time">잠금 시간 (휴식 시간):</label>
+        <select id="lock-time">
+          <option value="10">10분</option>
+          <option value="30">30분</option>
+          <option value="60">1시간</option>
+          <option value="300">5시간</option>
+          <option value="until_morning">다음날 아침 (오전 7시까지)</option>
+        </select>
+      </div>
+
+      <button onclick="startUsageTimer()">타이머 시작하기</button>
+      <div id="usage-status" style="margin-top: 10px; font-weight: bold; color: var(--primary);"></div>
+    </section>
+  </main>
+
+  <!-- 3. 블랙아웃 잠금 레이어 -->
+  <div id="lock-overlay">
+    <h2>🔒 쉼폰 잠금 모드</h2>
+    <p>지정한 휴식 시간 동안 화면이 잠깁니다.<br>스마트폰을 내려놓고 눈을 쉬어주세요.</p>
+    <div id="lock-timer">00:00:00</div>
+    <p>※ 페이지를 새로고침하더라도 잠금 시간이 유지됩니다.</p>
+  </div>
+
+  <script>
+    let usageInterval = null;
+    let lockInterval = null;
+
+    // 페이지 로드 시 기존에 설정된 잠금 시간이 있는지 확인
+    window.onload = function() {
+      const savedLockEnd = localStorage.getItem('lockEndTime');
+      if (savedLockEnd) {
+        const now = new Date().getTime();
+        if (now < parseInt(savedLockEnd)) {
+          startLockMode(parseInt(savedLockEnd));
+        } else {
+          localStorage.removeItem('lockEndTime');
+        }
+      }
+    };
+
+    // 1. 위치 기반 모의 확인 함수 (실제 API 연동 프레임)
+    function checkLocation() {
+      const statusDiv = document.getElementById('location-status');
+      const dangerBox = document.getElementById('danger-box');
+
+      if (!navigator.geolocation) {
+        statusDiv.innerText = "이 브라우저에서는 위치 서비스를 지원하지 않습니다.";
+        return;
+      }
+
+      statusDiv.innerText = "현재 위치 확인 중...";
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          statusDiv.innerText = `현재 위치 확인 완료 (위도: ${lat.toFixed(4)}, 경도: ${lng.toFixed(4)})`;
+
+          // [데모용] 예시로 위험지역 조건 가상 설정 (실제 구현 시 공공데이터 API 연동)
+          // 여기서는 버튼을 누르면 랜덤 또는 데모용으로 위험 알림을 출력합니다.
+          const isNearHazard = true; // 테스트를 위해 true로 설정
+          if (isNearHazard) {
+            dangerBox.style.display = 'block';
+          } else {
+            dangerBox.style.display = 'none';
+          }
+        },
+        () => {
+          statusDiv.innerText = "위치 정보를 가져오는데 실패했습니다. 권한을 확인해주세요.";
+        }
+      );
+    }
+
+    // 2. 사용 타이머 시작
+    function startUsageTimer() {
+      const usageMinutes = parseInt(document.getElementById('usage-time').value);
+      const lockSelectValue = document.getElementById('lock-time').value;
+
+      let usageSeconds = usageMinutes * 60;
+      const statusDiv = document.getElementById('usage-status');
+
+      if (usageInterval) clearInterval(usageInterval);
+
+      statusDiv.innerText = `사용 가능 시간: ${usageMinutes}분 남음`;
+
+      usageInterval = setInterval(() => {
+        usageSeconds--;
+        const m = Math.floor(usageSeconds / 60);
+        const s = usageSeconds % 60;
+        statusDiv.innerText = `사용 가능 시간: ${m}분 ${s}초 남음`;
+
+        if (usageSeconds <= 0) {
+          clearInterval(usageInterval);
+          statusDiv.innerText = "";
+          
+          // 잠금 종료 시간 계산
+          let lockEndTime = 0;
+          const now = new Date();
+
+          if (lockSelectValue === 'until_morning') {
+            // 다음날 아침 7시 설정
+            const nextMorning = new Date();
+            nextMorning.setDate(now.getDate() + 1);
+            nextMorning.setHours(7, 0, 0, 0);
+            lockEndTime = nextMorning.getTime();
+          } else {
+            const lockMinutes = parseInt(lockSelectValue);
+            lockEndTime = now.getTime() + (lockMinutes * 60 * 1000);
+          }
+
+          // LocalStorage에 잠금 완료 시간 저장 (새로고침 방지용)
+          localStorage.setItem('lockEndTime', lockEndTime);
+          startLockMode(lockEndTime);
+        }
+      }, 1000);
+    }
+
+    // 3. 잠금(블랙아웃) 모드 실행
+    function startLockMode(endTime) {
+      const lockOverlay = document.getElementById('lock-overlay');
+      const timerDisplay = document.getElementById('lock-timer');
+      lockOverlay.style.display = 'flex';
+
+      // 이탈/새로고침 방지 이벤트 등록
+      window.addEventListener('beforeunload', preventLeave);
+
+      if (lockInterval) clearInterval(lockInterval);
+
+      lockInterval = setInterval(() => {
+        const now = new Date().getTime();
+        const diff = endTime - now;
+
+        if (diff <= 0) {
+          clearInterval(lockInterval);
+          localStorage.removeItem('lockEndTime');
+          window.removeEventListener('beforeunload', preventLeave);
+          lockOverlay.style.display = 'none';
+          alert('휴식 시간이 종료되었습니다!');
+          return;
+        }
+
+        // 남은 시간 계산 (시:분:초)
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        timerDisplay.innerText = 
+          `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      }, 1000);
+    }
+
+    // 새로고침/창 닫기 방지 함수
+    function preventLeave(e) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  </script>
+</body>
+</html>
