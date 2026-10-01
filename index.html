@@ -13,6 +13,7 @@ body{min-height:100vh}
 body::before,body::after{content:'';position:fixed;top:0;bottom:0;width:46px;pointer-events:none;z-index:5;background:var(--vine) repeat-y center top/46px auto}
 body::before{left:0}body::after{right:0;transform:scaleX(-1)}
 h1{color:var(--pt)}
+button:disabled{opacity:.45}
 .bar{height:8px;background:#d1fae5;border-radius:6px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:var(--em);width:0;transition:width .6s}
 .pv{width:auto;flex:1;margin:0;padding:8px 0;font-size:18px}
 #toast{display:none;position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:100;background:var(--pt);color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;white-space:nowrap}
@@ -38,6 +39,7 @@ button.ghost{background:transparent;color:var(--tx);border:1px solid var(--bd);f
 <body>
 <main>
 <h1>쉼폰 <small>쉼표(,) + 폰 · 잠깐 쉬어가요</small></h1>
+<div id="ttl" style="margin-top:4px;font-size:14px;font-weight:600;color:var(--pt)"></div>
 
 <div id="warn"></div>
 <div id="toast"></div>
@@ -47,6 +49,7 @@ button.ghost{background:transparent;color:var(--tx);border:1px solid var(--bd);f
 <div id="gnext" style="font-size:13px;color:var(--sub);margin-top:6px"></div>
 <div id="pvs" style="display:flex;gap:6px;margin-top:10px"></div>
 <div style="font-size:12px;color:var(--sub);margin-top:6px">아이콘을 누르면 단계별 덩굴을 미리 볼 수 있어요</div></div>
+<div class="card" id="tcard"><div class="row"><h2>칭호</h2><span id="tk" style="font-size:13px;color:var(--sub)"></span></div><div style="font-size:12px;color:var(--sub);margin-bottom:4px">정원을 완성하면 토큰을 받아요. 토큰으로 칭호를 얻어보세요.</div><div id="tl"></div></div>
 
 <div class="card">
 <div class="row"><h2>① 위험 위치 알림</h2><span><span id="gd" class="dot"></span><span id="gs">꺼짐</span></span></div>
@@ -139,7 +142,7 @@ $('lock').addEventListener('click',function(){
 document.addEventListener('keydown',function(e){if(lockEnd)e.preventDefault()},true);
 document.addEventListener('contextmenu',function(e){if(lockEnd)e.preventDefault()});
 /* ---------- 덩굴 성장 ---------- */
-var TH=[0,30,90,240,600],NM=['새싹 덩굴','푸른 덩굴','꽃봉오리 덩굴','꽃 덩굴','만개한 꽃 정원'],EM=['🌱','🍃','🌷','🌸','🌺'],shown=-1;
+var CYCLE=900,TH=[0,30,90,240,600],NM=['새싹 덩굴','푸른 덩굴','꽃봉오리 덩굴','꽃 덩굴','만개한 꽃 정원'],EM=['🌱','🍃','🌷','🌸','🌺'],shown=-1;
 function leaf(x,y,r,c){return "<ellipse cx='"+x+"' cy='"+y+"' rx='10' ry='4.5' transform='rotate("+r+" "+x+" "+y+")' fill='"+c+"' stroke='%23059669' stroke-width='.8'/>"}
 function flower(x,y,r,c){var o='';for(var i=0;i<5;i++){var a=i*72*Math.PI/180;o+="<circle cx='"+(x+Math.sin(a)*r).toFixed(1)+"' cy='"+(y-Math.cos(a)*r).toFixed(1)+"' r='"+(r*.8).toFixed(1)+"' fill='"+c+"'/>"}return o+"<circle cx='"+x+"' cy='"+y+"' r='"+(r*.6).toFixed(1)+"' fill='%23fbbf24'/>"}
 function bud(x,y){return "<circle cx='"+x+"' cy='"+y+"' r='3.2' fill='%23f9a8d4'/><circle cx='"+x+"' cy='"+(y+3)+"' r='1.6' fill='%23059669'/>"}
@@ -158,16 +161,37 @@ function stageOf(m){var s=0;TH.forEach(function(t,i){if(m>=t)s=i});return s}
 function paint(st){document.documentElement.style.setProperty('--vine','url("data:image/svg+xml,'+vineSVG(st)+'")')}
 function toast(t){var e=$('toast');e.textContent=t;e.style.display='block';setTimeout(function(){e.style.display='none'},4500)}
 function render(up){
-  var m=+S.get('rest')||0,st=stageOf(m),nx=TH[st+1];
+  var m=+S.get('rest')||0,st=stageOf(m),nx=st<4?TH[st+1]:CYCLE;
   paint(st);
   $('gname').textContent=EM[st]+' '+NM[st];
   $('gmin').textContent='누적 잠금 '+(m>=60?Math.floor(m/60)+'시간 ':'')+(m%60)+'분';
-  $('gbar').style.width=(nx?Math.min(100,(m-TH[st])/(nx-TH[st])*100):100)+'%';
-  $('gnext').textContent=nx?'다음 단계('+NM[st+1]+')까지 '+(nx-m)+'분 더 쉬어요':'가장 예쁜 단계예요! 🎉';
+  $('gbar').style.width=Math.min(100,(m-TH[st])/(nx-TH[st])*100)+'%';
+  $('gnext').textContent=st<4?'다음 단계('+NM[st+1]+')까지 '+(nx-m)+'분 더 쉬어요':'정원 완성까지 '+(nx-m)+'분 더 쉬어요 (토큰 +1 🪙)';
   if(up&&shown>=0&&st>shown)toast(NM[st]+'(으)로 자랐어요! '+EM[st]);
-  shown=st;
+  shown=st;renderTitles();
 }
-function credit(){var m=+S.get('lockMin')||0;if(m){S.set('rest',(+S.get('rest')||0)+m);S.del('lockMin');render(true)}}
+function credit(){var m=+S.get('lockMin')||0;if(!m)return;var r=(+S.get('rest')||0)+m,got=0;
+  while(r>=CYCLE){r-=CYCLE;got++}
+  S.set('rest',r);S.del('lockMin');
+  if(got){S.set('tokens',tok()+got);S.set('gardens',gar()+got);toast('🎉 정원 완성! 토큰 +'+got+' 🪙')}
+  render(true)}
+var TT=[{id:'t0',n:'🌱 쉼표 입문자',c:0},{id:'t1',n:'🍃 숨 고르는 사람',c:1},{id:'t2',n:'🌸 꽃길 산책가',c:2},{id:'t3',n:'🦋 느긋한 나비',c:3},{id:'t4',n:'🌳 덩굴 정원사',c:5},{id:'t5',n:'👑 쉼표의 달인',c:8}];
+function tok(){return +S.get('tokens')||0}
+function gar(){return +S.get('gardens')||0}
+function owned(){try{var a=JSON.parse(S.get('owned')||'[]');return a.indexOf('t0')<0?['t0'].concat(a):a}catch(e){return ['t0']}}
+function renderTitles(){
+  var o=owned(),e=S.get('eq')||'t0',box=$('tl');box.innerHTML='';
+  $('tk').textContent='🪙 '+tok()+' · 완성한 정원 '+gar()+'개';
+  TT.forEach(function(t){
+    var row=document.createElement('div');row.className='row';row.style.cssText='padding:8px 0;border-top:1px solid var(--bd)';
+    var nm=document.createElement('span');nm.textContent=t.n;
+    var b=document.createElement('button');b.className='ghost';b.style.cssText='flex:none;width:96px;margin:0;font-size:13px;padding:8px 0';
+    if(o.indexOf(t.id)>=0){b.textContent=e===t.id?'장착 중':'장착';b.disabled=e===t.id;b.onclick=function(){S.set('eq',t.id);renderTitles()}}
+    else{b.textContent='🪙 '+t.c+' 얻기';b.disabled=tok()<t.c;
+      b.onclick=function(){if(tok()<t.c)return;S.set('tokens',tok()-t.c);o.push(t.id);S.set('owned',JSON.stringify(o));S.set('eq',t.id);renderTitles();toast('칭호 획득! '+t.n)}}
+    row.appendChild(nm);row.appendChild(b);box.appendChild(row)});
+  var cur=TT.filter(function(t){return t.id===e})[0];$('ttl').textContent=cur?cur.n:'';
+}
 EM.forEach(function(e,i){var b=document.createElement('button');b.className='ghost pv';b.textContent=e;
   b.onclick=function(){paint(i);$('gname').textContent='미리보기: '+e+' '+NM[i]};$('pvs').appendChild(b)});
 var rb=document.createElement('button');rb.className='ghost pv';rb.textContent='↩';rb.style.fontSize='15px';rb.onclick=function(){render()};$('pvs').appendChild(rb);
