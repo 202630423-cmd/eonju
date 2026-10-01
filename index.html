@@ -1,1 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>쉼폰</title>
+<style>
+:root{--bg:#ffffff;--card:#ffffff;--tx:#14352b;--sub:#5f7a70;--pt:#047857;--em:#10b981;--dg:#d9453b;--bd:#a7f3d0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;line-height:1.5}
+body{min-height:100vh}
+body::before,body::after{content:'';position:fixed;top:0;bottom:0;width:46px;pointer-events:none;z-index:5;background:var(--vine) repeat-y center top/46px auto}
+body::before{left:0}body::after{right:0;transform:scaleX(-1)}
+h1{color:var(--pt)}
+.bar{height:8px;background:#d1fae5;border-radius:6px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:var(--em);width:0;transition:width .6s}
+.pv{width:auto;flex:1;margin:0;padding:8px 0;font-size:18px}
+#toast{display:none;position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:100;background:var(--pt);color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;white-space:nowrap}
+.card{box-shadow:0 2px 10px rgba(16,185,129,.08)}
+main{max-width:480px;margin:0 auto;padding:20px 54px 40px}
+h1{margin:0;font-size:26px}h1 small{display:block;font-size:13px;font-weight:400;color:var(--sub)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-top:14px}
+h2{margin:0 0 10px;font-size:15px}
+label{display:block;font-size:13px;color:var(--sub);margin-top:8px}
+input[type=range],select{width:100%}
+select{padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:15px}
+.big{font-size:28px;font-weight:700;color:var(--pt)}
+button{width:100%;padding:13px;border:0;border-radius:12px;background:var(--pt);color:#fff;font-size:16px;font-weight:600;margin-top:12px}
+button.ghost{background:transparent;color:var(--tx);border:1px solid var(--bd);font-size:14px;padding:10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#warn{display:none;background:var(--dg);color:#fff;border-radius:14px;padding:14px;margin-top:14px;font-weight:600}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--sub);margin-right:6px}
+.dot.on{background:var(--pt)}
+#lock{display:none;position:fixed;inset:0;z-index:99;background:#000;color:#fff;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
+#lock .t{font-size:56px;font-weight:700;margin:14px 0;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<main>
+<h1>쉼폰 <small>쉼표(,) + 폰 · 잠깐 쉬어가요</small></h1>
 
+<div id="warn"></div>
+<div id="toast"></div>
+<div class="card" id="grow"><div class="row"><h2>내 덩굴</h2><span id="gmin" style="font-size:13px;color:var(--sub)"></span></div>
+<div class="big" id="gname" style="font-size:20px"></div>
+<div class="bar"><i id="gbar"></i></div>
+<div id="gnext" style="font-size:13px;color:var(--sub);margin-top:6px"></div>
+<div id="pvs" style="display:flex;gap:6px;margin-top:10px"></div>
+<div style="font-size:12px;color:var(--sub);margin-top:6px">아이콘을 누르면 단계별 덩굴을 미리 볼 수 있어요</div></div>
+
+<div class="card">
+<div class="row"><h2>① 위험 위치 알림</h2><span><span id="gd" class="dot"></span><span id="gs">꺼짐</span></span></div>
+<p style="margin:0;font-size:13px;color:var(--sub)">위치 권한을 켜면 호수·공사 구간 근처에서 알림이 울려요. (이 화면을 열어둔 동안 작동)</p>
+<button id="gbtn">위치 알림 켜기</button>
+<button class="ghost" id="addz">테스트: 내 위치에 위험 지점 만들기</button>
+<div id="zl" style="font-size:13px;color:var(--sub);margin-top:8px"></div>
+</div>
+
+<div class="card">
+<h2>② 사용 시간 · 잠금 시간</h2>
+<label>STEP 1. 사용할 시간: <b id="uv">30분</b></label>
+<input type="range" id="use" min="1" max="180" value="30">
+<label>STEP 2. 사용 후 잠글 시간</label>
+<select id="lk">
+<option value="10">10분</option><option value="30">30분</option><option value="60">1시간</option><option value="180">3시간</option><option value="tomorrow">내일 0시까지</option>
+</select>
+<label><input type="checkbox" id="demo"> 테스트 모드 (분을 초로 계산)</label>
+<button id="start">시작하기</button>
+<div id="run" style="display:none;text-align:center;margin-top:12px">
+<div style="font-size:13px;color:var(--sub)">잠금까지 남은 시간</div><div class="big" id="left">--:--</div>
+<button class="ghost" id="stop">중지</button>
+</div>
+</div>
+</main>
+
+<div id="lock">
+<div style="font-size:48px">🌿</div>
+<h2 style="font-size:22px">잠깐 쉬어갈 시간이에요</h2>
+<div class="t" id="lt">--:--</div>
+<div style="color:#9ab;font-size:14px">타이머가 끝나면 자동으로 열려요.<br>화면에서 벗어나 눈과 손을 쉬게 해주세요.</div>
+</div>
+
+<script>
+var $=function(i){return document.getElementById(i)};
+var S={get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}},del:function(k){try{localStorage.removeItem(k)}catch(e){}}};
+var unit=function(){return $('demo').checked?1000:60000};
+function fmt(ms){ms=Math.max(0,Math.ceil(ms/1000));var h=Math.floor(ms/3600),m=Math.floor(ms%3600/60),s=ms%60;var p=function(n){return String(n).padStart(2,'0')};return (h?h+':':'')+p(m)+':'+p(s)}
+
+/* ---------- 기능 ②: 사용 타이머 + 잠금 ---------- */
+var useEnd=null,lockEnd=null,tick=null;
+$('use').oninput=function(){$('uv').textContent=this.value+'분'};
+$('start').onclick=function(){
+  useEnd=Date.now()+(+$('use').value)*unit();
+  $('run').style.display='block';
+  S.set('useEnd',useEnd);
+  S.set('lockLen',$('lk').value);S.set('demo',$('demo').checked?'1':'0');
+  loop();
+};
+$('stop').onclick=function(){useEnd=null;S.del('useEnd');$('run').style.display='none'};
+function lockLenMs(){
+  var v=S.get('lockLen')||$('lk').value,u=S.get('demo')==='1'?1000:60000;
+  if(v==='tomorrow'){var d=new Date();d.setHours(24,0,0,0);return d-Date.now()}
+  return (+v)*u;
+}
+function startLock(){
+  useEnd=null;S.del('useEnd');$('run').style.display='none';
+  var L=lockLenMs();lockEnd=Date.now()+L;S.set('lockEnd',lockEnd);S.set('lockMin',Math.round(L/(S.get('demo')==='1'?1000:60000)));showLock();
+}
+function showLock(){
+  $('lock').style.display='flex';
+  var el=document.documentElement;
+  try{if(!document.fullscreenElement&&el.requestFullscreen)el.requestFullscreen().catch(function(){})}catch(e){}
+  loop();
+}
+function hideLock(){
+  lockEnd=null;S.del('lockEnd');$('lock').style.display='none';credit();
+  try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}
+}
+function loop(){
+  clearInterval(tick);
+  tick=setInterval(function(){
+    var now=Date.now();
+    if(lockEnd){
+      var r=lockEnd-now;$('lt').textContent=fmt(r);
+      if(r<=0){hideLock();clearInterval(tick)}
+    }else if(useEnd){
+      var u=useEnd-now;$('left').textContent=fmt(u);
+      if(u<=0)startLock();
+    }
+  },250);
+}
+/* 전체화면을 벗어나면 잠금 중일 때 다시 덮기 (다음 터치 시 재요청) */
+document.addEventListener('fullscreenchange',function(){
+  if(lockEnd&&!document.fullscreenElement)$('lock').style.display='flex';
+});
+$('lock').addEventListener('click',function(){
+  if(lockEnd&&!document.fullscreenElement){try{document.documentElement.requestFullscreen().catch(function(){})}catch(e){}}
+});
+document.addEventListener('keydown',function(e){if(lockEnd)e.preventDefault()},true);
+document.addEventListener('contextmenu',function(e){if(lockEnd)e.preventDefault()});
+/* ---------- 덩굴 성장 ---------- */
+var TH=[0,30,90,240,600],NM=['새싹 덩굴','푸른 덩굴','꽃봉오리 덩굴','꽃 덩굴','만개한 꽃 정원'],EM=['🌱','🍃','🌷','🌸','🌺'],shown=-1;
+function leaf(x,y,r,c){return "<ellipse cx='"+x+"' cy='"+y+"' rx='10' ry='4.5' transform='rotate("+r+" "+x+" "+y+")' fill='"+c+"' stroke='%23059669' stroke-width='.8'/>"}
+function flower(x,y,r,c){var o='';for(var i=0;i<5;i++){var a=i*72*Math.PI/180;o+="<circle cx='"+(x+Math.sin(a)*r).toFixed(1)+"' cy='"+(y-Math.cos(a)*r).toFixed(1)+"' r='"+(r*.8).toFixed(1)+"' fill='"+c+"'/>"}return o+"<circle cx='"+x+"' cy='"+y+"' r='"+(r*.6).toFixed(1)+"' fill='%23fbbf24'/>"}
+function bud(x,y){return "<circle cx='"+x+"' cy='"+y+"' r='3.2' fill='%23f9a8d4'/><circle cx='"+x+"' cy='"+(y+3)+"' r='1.6' fill='%23059669'/>"}
+function vineSVG(st){
+  var g="<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 200'><path d='M28 0C48 25 8 75 28 100S8 175 28 200' fill='none' stroke='%23059669' stroke-width='"+(2.5+st*.3)+"' stroke-linecap='round'/>";
+  if(st>=4)g+="<path d='M28 0C8 25 48 75 28 100S48 175 28 200' fill='none' stroke='%2334d399' stroke-width='1.5' stroke-linecap='round' opacity='.8'/>";
+  g+=leaf(42,28,35,'%2334d399')+leaf(13,72,-35,'%2334d399')+leaf(43,128,35,'%2334d399')+leaf(13,172,-35,'%2334d399');
+  if(st>=1)g+=leaf(33,52,35,'%236ee7b7')+leaf(21,100,-35,'%236ee7b7')+leaf(34,152,35,'%236ee7b7')+leaf(20,10,-35,'%236ee7b7');
+  if(st==2)g+=bud(48,56)+bud(8,104)+bud(48,156)+bud(10,30)+bud(46,182);
+  var c=st>=4?'%23f472b6':'%23f9a8d4';
+  if(st>=3)g+=flower(47,54,4.5,c)+flower(9,104,4.5,'%23ffffff')+flower(47,154,4.5,c);
+  if(st>=4)g+=flower(10,28,3.8,'%23ffffff')+flower(46,182,3.8,'%23ffffff')+flower(9,160,3.8,c)+"<g fill='%23fcd34d'><path d='M50 90l1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5z'/><path d='M7 40l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1z'/></g>";
+  return g+'</svg>';
+}
+function stageOf(m){var s=0;TH.forEach(function(t,i){if(m>=t)s=i});return s}
+function paint(st){document.documentElement.style.setProperty('--vine','url("data:image/svg+xml,'+vineSVG(st)+'")')}
+function toast(t){var e=$('toast');e.textContent=t;e.style.display='block';setTimeout(function(){e.style.display='none'},4500)}
+function render(up){
+  var m=+S.get('rest')||0,st=stageOf(m),nx=TH[st+1];
+  paint(st);
+  $('gname').textContent=EM[st]+' '+NM[st];
+  $('gmin').textContent='누적 잠금 '+(m>=60?Math.floor(m/60)+'시간 ':'')+(m%60)+'분';
+  $('gbar').style.width=(nx?Math.min(100,(m-TH[st])/(nx-TH[st])*100):100)+'%';
+  $('gnext').textContent=nx?'다음 단계('+NM[st+1]+')까지 '+(nx-m)+'분 더 쉬어요':'가장 예쁜 단계예요! 🎉';
+  if(up&&shown>=0&&st>shown)toast(NM[st]+'(으)로 자랐어요! '+EM[st]);
+  shown=st;
+}
+function credit(){var m=+S.get('lockMin')||0;if(m){S.set('rest',(+S.get('rest')||0)+m);S.del('lockMin');render(true)}}
+EM.forEach(function(e,i){var b=document.createElement('button');b.className='ghost pv';b.textContent=e;
+  b.onclick=function(){paint(i);$('gname').textContent='미리보기: '+e+' '+NM[i]};$('pvs').appendChild(b)});
+var rb=document.createElement('button');rb.className='ghost pv';rb.textContent='↩';rb.style.fontSize='15px';rb.onclick=function(){render()};$('pvs').appendChild(rb);
+render();
+
+/* 새로고침/재접속해도 잠금 유지 */
+(function restore(){
+  var le=+S.get('lockEnd'),ue=+S.get('useEnd');
+  if(le&&le>Date.now()){lockEnd=le;showLock()}
+  else{if(le)credit();S.del('lockEnd');if(ue&&ue>Date.now()){useEnd=ue;$('run').style.display='block';loop()}}
+})();
+
+/* ---------- 기능 ①: 위험 위치 알림 ---------- */
+var zones=[
+  {n:'석촌호수 산책로',lat:37.5086,lng:127.1030,r:60},
+  {n:'한강공원 반포 수변',lat:37.5105,lng:126.9960,r:80}
+];
+try{var sz=JSON.parse(S.get('zones')||'[]');zones=zones.concat(sz)}catch(e){}
+var wid=null;
+function renderZones(){$('zl').textContent='등록된 위험 지점: '+zones.map(function(z){return z.n}).join(', ')}
+renderZones();
+function dist(a,b,c,d){var R=6371000,t=Math.PI/180,x=(c-a)*t,y=(d-b)*t;
+  var h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*t)*Math.cos(c*t)*Math.sin(y/2)*Math.sin(y/2);
+  return 2*R*Math.asin(Math.sqrt(h))}
+var last=null;
+function check(p){
+  var la=p.coords.latitude,ln=p.coords.longitude;last=[la,ln];
+  var hit=null;
+  zones.forEach(function(z){if(dist(la,ln,z.lat,z.lng)<=z.r)hit=z});
+  var w=$('warn');
+  if(hit){
+    w.style.display='block';w.textContent='⚠️ '+hit.n+' 근처예요! 화면에서 눈을 떼고 주변을 확인하세요.';
+    try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}
+  }else w.style.display='none';
+}
+$('gbtn').onclick=function(){
+  if(wid!==null){navigator.geolocation.clearWatch(wid);wid=null;$('gd').className='dot';$('gs').textContent='꺼짐';this.textContent='위치 알림 켜기';$('warn').style.display='none';return}
+  if(!navigator.geolocation){alert('이 브라우저는 위치 기능을 지원하지 않아요.');return}
+  var b=this;
+  wid=navigator.geolocation.watchPosition(function(p){$('gd').className='dot on';$('gs').textContent='감시 중';b.textContent='위치 알림 끄기';check(p)},
+    function(){wid=null;alert('위치 권한이 필요해요. 브라우저 설정에서 허용해 주세요.')},
+    {enableHighAccuracy:true,maximumAge:3000});
+};
+$('addz').onclick=function(){
+  if(!last){alert('먼저 위치 알림을 켜서 현재 위치를 받아와 주세요.');return}
+  var z={n:'테스트 지점',lat:last[0],lng:last[1],r:50};
+  zones.push(z);var saved=[];try{saved=JSON.parse(S.get('zones')||'[]')}catch(e){}
+  saved.push(z);S.set('zones',JSON.stringify(saved));renderZones();
+  check({coords:{latitude:last[0],longitude:last[1]}});
+};
+</script>
+</body>
+</html>
