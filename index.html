@@ -1,1 +1,155 @@
-쉼폰 (Rest Phone)
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>쉼폰 - 스마트폰 사용 타이머</title>
+  <style>
+    :root {
+      --primary-color: #4A90E2;
+      --bg-color: #F5F7FA;
+      --card-bg: #FFFFFF;
+      --text-color: #333333;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      width: 100%;
+      max-width: 360px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      font-size: 24px;
+      color: var(--primary-color);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    p.subtitle {
+      font-size: 14px;
+      color: #666;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .step-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    select, input[type="range"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #E1E4E8;
+      border-radius: 10px;
+      box-sizing: border-box;
+      font-size: 15px;
+    }
+
+    .range-value {
+      text-align: right;
+      font-size: 13px;
+      color: var(--primary-color);
+      font-weight: bold;
+      margin-top: 4px;
+    }
+
+    .status-badge {
+      background-color: #EBF3FF;
+      color: var(--primary-color);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button {
+      width: 100%;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #357ABD;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>쉼폰 ,</h1>
+    <p class="subtitle">일상의 쉼표를 더하는 시간</p>
+
+    <!-- STEP 1 -->
+    <div class="step-group">
+      <label for="use-time">STEP 1. 스마트폰 사용 시간</label>
+      <input type="range" id="use-time" min="1" max="180" value="30" oninput="updateUseText(this.value)">
+      <div class="range-value" id="use-text">30분</div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-group">
+      <label for="lock-time">STEP 2. 사용 후 잠금 시간</label>
+      <select id="lock-time">
+        <option value="10">10분</option>
+        <option value="30">30분</option>
+        <option value="60">1시간</option>
+        <option value="120">2시간</option>
+        <option value="next_day">다음 날 아침까지</option>
+      </select>
+    </div>
+
+    <!-- 상시 위치 권한 상태 표시 -->
+    <div class="status-badge">
+      <span>📍</span> 위치 감지 상시 작동 중 (위험지역 감지)
+    </div>
+
+    <button onclick="startShim()">쉼폰 시작하기</button>
+  </div>
+
+  <script>
+    function updateUseText(val) {
+      document.getElementById('use-text').innerText = val + '분';
+    }
+
+    function startShim() {
+      const useTime = document.getElementById('use-time').value;
+      const lockTime = document.getElementById('lock-time').value;
+      alert(`스마트폰 사용 ${useTime}분 후, 설정한 시간동안 잠금이 시작됩니다.`);
+    }
+  </script>
+
+</body>
+</html>
