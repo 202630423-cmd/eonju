@@ -1,205 +1,199 @@
-/* Google Fonts: Gamja Flower (이파리/자연 손글씨 느낌) */
-@import url('https://fonts.googleapis.com/css2?family=Gamja+Flower&display=swap');
-
 :root {
-  --bg-color: #ffffff;
-  --card-bg: #ffffff;
   --primary: #2e7d32;
   --primary-light: #e8f5e9;
+  --primary-border: #a5d6a7;
+  --accent: #81c784;
   --danger: #d32f2f;
-  --text: #2d3748;
+  --text-color: #333;
+  --bg-color: #f4f8f5;
 }
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
-  padding: 20px;
-  font-family: 'Gamja Flower', cursive, sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   background-color: var(--bg-color);
-  color: var(--text);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  font-size: 1.25rem;
+  color: var(--text-color);
+  line-height: 1.6;
+  padding: 20px;
   position: relative;
-  overflow-x: hidden;
+  min-height: 100vh;
 }
 
-/* 🌿 전체 화면 초록색 덩굴 라인 테두리 */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  border: 12px solid #81c784;
-  border-image: linear-gradient(to bottom right, #2e7d32, #81c784, #a5d6a7, #2e7d32) 1;
-  pointer-events: none;
-  z-index: 999;
-}
-
-/* 화면 모서리 나뭇잎 이모지 장식 */
+/* 덩굴 장식 */
 .vine-decoration {
   position: fixed;
-  font-size: 2.2rem;
-  z-index: 1000;
+  font-size: 1.5rem;
   pointer-events: none;
-  user-select: none;
+  z-index: 10;
+  opacity: 0.7;
 }
-.vine-top-left { top: 15px; left: 15px; }
-.vine-top-right { top: 15px; right: 15px; transform: scaleX(-1); }
-.vine-bottom-left { bottom: 15px; left: 15px; transform: scaleY(-1); }
-.vine-bottom-right { bottom: 15px; right: 15px; transform: scale(-1, -1); }
+.vine-top-left { top: 10px; left: 10px; }
+.vine-top-right { top: 10px; right: 10px; }
+.vine-bottom-left { bottom: 10px; left: 10px; }
+.vine-bottom-right { bottom: 10px; right: 10px; }
 
-/* 헤더 영역 */
 header {
-  width: 100%;
-  max-width: 550px;
-  background-color: #ffffff;
-  color: var(--primary);
   text-align: center;
-  padding: 1.5rem 1rem;
-  border-radius: 20px;
-  margin-top: 10px;
-  border: 3px dashed #a5d6a7;
+  margin-bottom: 30px;
+  padding: 20px 0;
+  background-color: var(--primary-light);
+  border-radius: 16px;
+  border: 2px dashed var(--primary-border);
 }
 
 header h1 {
-  margin: 0;
-  font-size: 2.6rem;
-  letter-spacing: 2px;
+  color: var(--primary);
+  font-size: 2rem;
+  margin-bottom: 8px;
 }
 
 header p {
-  margin: 8px 0 0 0;
-  font-size: 1.3rem;
-  color: #4b6b4e;
+  color: #555;
+  font-size: 1.1rem;
 }
 
 main {
-  width: 100%;
-  max-width: 550px;
-  margin: 20px 0;
+  max-width: 600px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 20px;
 }
 
-/* 🍃 카드 덩굴 테두리 스타일 */
 .card {
-  background: var(--card-bg);
-  padding: 25px;
-  border-radius: 20px;
-  border: 3px solid #81c784;
-  box-shadow: 0 8px 20px rgba(46, 125, 50, 0.08);
-  position: relative;
-}
-
-.card::before {
-  content: "🍃";
-  position: absolute;
-  top: -16px;
-  left: 20px;
   background: white;
-  padding: 0 5px;
-  font-size: 1.2rem;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e0e0e0;
 }
 
 .card h2 {
-  margin-top: 0;
-  font-size: 1.7rem;
+  font-size: 1.3rem;
   color: var(--primary);
-  border-bottom: 2px dashed #c8e6c9;
-  padding-bottom: 10px;
-}
-
-/* 입력 및 드롭다운 양식 */
-.form-group {
-  margin-bottom: 18px;
+  margin-bottom: 15px;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-label {
-  font-size: 1.3rem;
-  color: #33691e;
-}
-
-select, button {
-  padding: 12px;
-  border-radius: 12px;
-  border: 2px solid #a5d6a7;
-  font-size: 1.3rem;
-  font-family: 'Gamja Flower', cursive, sans-serif;
-  outline: none;
-}
-
-select {
-  background-color: #f1f8e9;
-  cursor: pointer;
+  align-items: center;
+  gap: 8px;
 }
 
 button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
   background-color: var(--primary);
   color: white;
-  border: none;
+  font-size: 1rem;
+  font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  font-size: 1.4rem;
-  box-shadow: 0 4px 10px rgba(46, 125, 50, 0.2);
+  transition: background-color 0.2s;
 }
 
 button:hover {
   background-color: #1b5e20;
-  transform: translateY(-2px);
 }
 
-.danger-alert {
-  background-color: #ffebee;
-  border: 2px solid var(--danger);
-  color: var(--danger);
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+/* 퀴즈 스타일 */
+.quiz-options {
+  display: flex;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.quiz-options button {
+  flex: 1;
+  font-size: 1.5rem;
+  padding: 10px;
+  border-radius: 12px;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border: 2px solid var(--primary-border);
+  cursor: pointer;
+}
+
+.quiz-options button:hover {
+  background-color: var(--primary);
+  color: white;
+}
+
+.quiz-explanation {
+  background-color: var(--primary-light);
+  border: 2px dashed var(--accent);
   padding: 15px;
   border-radius: 12px;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
+  margin-top: 15px;
   display: none;
 }
 
-/* 🔒 블랙아웃 잠금 레이어 */
+.danger-alert {
+  display: none;
+  background-color: #ffebee;
+  color: var(--danger);
+  border: 1px solid #ffcdd2;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+/* 잠금 오버레이 화면 */
 #lock-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #0d1b10;
-  color: #ffffff;
+  background-color: rgba(27, 94, 32, 0.95);
+  color: white;
   display: none;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 99999;
   text-align: center;
+  z-index: 9999;
   padding: 20px;
 }
 
 #lock-overlay h2 {
-  font-size: 2.5rem;
-  margin-bottom: 10px;
-  color: #81c784;
-}
-
-#lock-timer {
-  font-size: 4rem;
-  font-weight: bold;
-  margin: 25px 0;
-  color: #a5d6a7;
-  letter-spacing: 3px;
+  font-size: 2.2rem;
+  margin-bottom: 15px;
 }
 
 #lock-overlay p {
-  color: #b0bec5;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+#lock-timer {
+  font-size: 3.5rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin: 20px 0;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 10px 30px;
+  border-radius: 16px;
 }
